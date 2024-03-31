@@ -10,7 +10,7 @@ module auction::sealed_bid {
     use sui::transfer;
     use sui::tx_context::{Self, sender, TxContext};
 
-    const EAuctionEnded: u8: 0;
+    const EAuctionEnded: u64= 0;
 
     struct AuctionInfo has key, store {
         id: UID,
@@ -39,6 +39,7 @@ module auction::sealed_bid {
             bidder: table::new(ctx), 
             start_time: clock::timestamp_ms(clock),
             end_time,
+            reveal_time,
             auction_owner: tx_context::sender(ctx), 
             winner: option::none(), 
             redeemable: coin::into_balance(coin),
@@ -62,7 +63,7 @@ module auction::sealed_bid {
         // already bidded user 
         // handle the amount 
         // bidder need to refundable payment to get sure valid bidder
-        assert!(clock::timestamp(clock) < auction.end_time, EAuctionEnded);
+        assert!(clock::timestamp_ms(clock) < auction.end_time, EAuctionEnded);
         table::add(&mut auction.bidder, tx_context::sender(ctx), bid_commit_hash); 
     }
 
@@ -77,7 +78,7 @@ module auction::sealed_bid {
     // public fun reclaim()
     // after the reveal time is over 
     // bidder can claim their money back
-    /
+    //
 
     // winner can add rarity nft to their dynamic object field 
 
