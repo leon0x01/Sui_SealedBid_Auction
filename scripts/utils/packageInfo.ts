@@ -1,0 +1,6 @@
+export let packageId = '0x4ba5f7f34d6c453b12306cfdf0105df0ffb21a39db99fe85fc1ac704558145b5';
+export let novaNFTId = '0x5ecfdd811d17f2a5038583c05ae7ef0540a02da873e2bd2ec2d2e8b2d8c3cd60';
+export let AuctionInfo = '0x4ba63e443c0bf9d8e63b84be00625616cdd52540cd86abc8aee1f9cafb3bb70d';
+export let UpgradeCap = '0xbe75d49ed3768774c69440abe459e18c30bc9667e6b0171754f3e774376331a9';
+export let VAdminCap = '0x67e953fca7fc71687f95d4f6fee9ba50c968cf3b96609336b2a6298b44a7fb41';
+export let Version = '0x503d30edfc11e11c34243d455b48f7088dd83a91f369ff74b2d93d6e72111a05';
