@@ -41,6 +41,12 @@ module auction::sealed_bid {
     /// @dev Thrown when the bidder bid the less than Auction max amount
     const ELessThanAuctionMaxAmount: u64 = 6;
 
+    /// @dev Thrown when the Unknown winner redeeming final amount / profits
+    const ENotAuctionOwner: u64 = 7;
+
+    /// @dev Thrown when the final amount / profit is zero 
+    const EAmountZero: u64 = 8;
+
     /*«-«-«-«-«-«-«-«-«-«-«-«-«-«-«-«-«-«-«-«-«-«-«-«-«-«-«-«-«-«-*/
     /*                    SHARE OBJECT                            */
     /*-»-»-»-»-»-»-»-»-»-»-»-»-»-»-»-»-»-»-»-»-»-»-»-»-»-»-»-»-»-»*/
@@ -205,7 +211,6 @@ module auction::sealed_bid {
     /// @param auction Share Object of auction which holds auction details 
     /// @param bid commit hash Bidder Amount Hash representation
     /// @param clock provide the present timestamp
-
     public fun bid<T>(auction: &mut AuctionInfo<T>, bid_commit_hash: vector<u8>, clock: &Clock, ctx: &mut TxContext){ 
         assert!(clock::timestamp_ms(clock) < auction.end_time, EAuctionEnded);
         table::add(&mut auction.bidder, tx_context::sender(ctx), bid_commit_hash); 
@@ -295,6 +300,24 @@ module auction::sealed_bid {
             mode: string::utf8(b"upgraded"),
         };
         dofield::add(&mut nft.id, object::id(&upgraded_nft), upgraded_nft);
+    }
+
+    #[allow(lint(self_transfer))]
+    /*«-«-«-«-«-«-«-«-«-«-«-«-«-«-«-«-«-«-«-«-«-«-«-«-«-«-«-«-«-«-*/
+    /*                  REEDEEM PROFIT OF AUCTION                 */
+    /*-»-»-»-»-»-»-»-»-»-»-»-»-»-»-»-»-»-»-»-»-»-»-»-»-»-»-»-»-»-»*/
+
+    /// @dev auction owner can reedem the auction after the auction ended
+    /// auction owner can only reedem the profit after winning bidder pay money
+    /// @param auction AuctionInfo sharedObject which holds the auction details 
+    public fun redeem_profit<T>(auction: &mut AuctionInfo<T>, clock: &Clock, ctx: &mut TxContext){
+        assert!(clock::timestamp_ms(clock) > auction.reveal_time, EAuctionRevealedIsNotEnded);
+        let owner = tx_context::sender(ctx);
+        assert!(auction.auction_owner == owner, ENotAuctionOwner);
+        let amount = balance::value(&auction.final_amount);
+        assert!(amount > 0, EAmountZero);
+        let coin = coin::take(&mut auction.final_amount, amount, ctx);
+        transfer::public_transfer(coin, owner);
     }
 
     #[test]
