@@ -1,20 +1,15 @@
 module auction::sealed_bid {
-    use sui::object::{Self as object, ID, UID};
-    use std::option::{Self, Option};
     use sui::balance::{Self, Balance};
     use std::string::{Self, utf8, String};
     use sui::table::{Self, Table};
     use sui::coin::{Self, Coin};
     use sui::clock::{Self, Clock};
-    use sui::transfer;
     use std::hash;
-    use std::vector;
     use sui::event;
     use sui::package;
     use sui::display;
     use sui::dynamic_field as dfield;
     use sui::dynamic_object_field as dofield;
-    use sui::tx_context::{Self, TxContext};
 
     /*«-«-«-«-«-«-«-«-«-«-«-«-«-«-«-«-«-«-«-«-«-«-«-«-«-«-«-«-«-«-*/
     /*                        ERRORS                              */
@@ -52,7 +47,7 @@ module auction::sealed_bid {
     /*-»-»-»-»-»-»-»-»-»-»-»-»-»-»-»-»-»-»-»-»-»-»-»-»-»-»-»-»-»-»*/
 
     /// @dev Struct contains the Auction Info which is the share object
-    struct AuctionInfo<phantom T> has key, store {
+    public struct AuctionInfo<phantom T> has key, store {
         id: UID,
         // name of the Auction
         auction_name: String,
@@ -84,7 +79,7 @@ module auction::sealed_bid {
 
     // @dev minted when bidder initally bid and it is the Initial Nova character
     // mandatory to have intial Nova NFT 
-    struct NovaNFT has key, store {
+    public struct NovaNFT has key, store {
         id: UID, 
         // name of the Nova character NFT
         name: String, 
@@ -98,7 +93,7 @@ module auction::sealed_bid {
     /*                   DYNAMIC LINK OBJECT                      */
     /*-»-»-»-»-»-»-»-»-»-»-»-»-»-»-»-»-»-»-»-»-»-»-»-»-»-»-»-»-»-»*/
 
-    struct UpgradedNFT has key, store { 
+    public struct UpgradedNFT has key, store { 
         id: UID, 
         // name of the Upgrade Nova Character NFT 
         name: String,
@@ -115,7 +110,7 @@ module auction::sealed_bid {
     /*-»-»-»-»-»-»-»-»-»-»-»-»-»-»-»-»-»-»-»-»-»-»-»-»-»-»-»-»-»-»*/
     
     /// @dev emitted when the NovaNFT minted
-    struct NovaNFTEvent has copy, drop {
+    public struct NovaNFTEvent has copy, drop {
         object_id: ID, 
         // creator of the nova nft 
         creator: address, 
@@ -124,7 +119,7 @@ module auction::sealed_bid {
     }
 
     // @dev one time witness of sealed bid module
-    struct SEALED_BID has drop {}
+    public struct SEALED_BID has drop {}
     
 
     /*«-«-«-«-«-«-«-«-«-«-«-«-«-«-«-«-«-«-«-«-«-«-«-«-«-«-«-«-«-«-*/
@@ -160,10 +155,10 @@ module auction::sealed_bid {
             utf8(b"{mode}"), 
         ]; 
         let publisher = package::claim(otw, ctx); 
-        let display_1 = display::new_with_fields<NovaNFT>(
+        let mut display_1 = display::new_with_fields<NovaNFT>(
             &publisher, keys_1, values_1, ctx
         );
-        let display_2 = display::new_with_fields<UpgradedNFT>(
+        let mut display_2 = display::new_with_fields<UpgradedNFT>(
             &publisher, keys_2, values_2, ctx
         );
         display::update_version(&mut display_1);
@@ -258,11 +253,11 @@ module auction::sealed_bid {
     /// @param bid_amount user bid amount 
     /// @param salt secret key used represent as vector<u8>
     /// @return sah256 hash of bid_amount and salt embbedded hash
-    fun hash(bid_amount: u64, salt: vector<u8>): vector<u8> {
-        let data = salt;
+    fun hash(mut bid_amount: u64, salt: vector<u8>): vector<u8> {
+        let mut data = salt;
         //vector::append(&mut data, bcs::to_bytes(&salt));
-        let round_bytes: vector<u8> = vector[0, 0, 0, 0, 0, 0, 0, 0];
-        let i = 7;
+        let mut round_bytes: vector<u8> = vector[0, 0, 0, 0, 0, 0, 0, 0];
+        let mut i = 7;
         while (i > 0) {
             let curr_byte = bid_amount % 0x100;
             let curr_element = vector::borrow_mut(&mut round_bytes, i);
@@ -325,14 +320,14 @@ module auction::sealed_bid {
         // let bid_amount = x"186a0";
         // let salt = x"616263"; 
         let bytes_convert_bid :vector<u8> = vector[ 160, 134, 1, 0 ];
-        let test_vector: vector<u8> = vector[];
+        let mut test_vector: vector<u8> = vector[];
         let salt_to_vector: vector<u8> = vector[ 114, 97, 109 ];
         vector::append(&mut test_vector, salt_to_vector);
         vector::append(&mut test_vector, bytes_convert_bid);
         let test_sha256 = hash::sha2_256(test_vector);
-        debug::print(&test_sha256);
+        //debug::print(&test_sha256);
         let expected_hash = hash(100000, salt_to_vector);
-        debug::print(&expected_hash);
+        //debug::print(&expected_hash);
     }
 
     // @TODO

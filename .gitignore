@@ -1,4 +1,4 @@
-build/
+build/auction/
 Move.lock
 scripts/.env
 node_modules/

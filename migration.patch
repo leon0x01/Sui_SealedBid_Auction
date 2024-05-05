@@ -1,0 +1,36 @@
+--- sources/sealedBidAuction.move
++++ sources/sealedBidAuction.move
+@@ -55 +55 @@
+-    struct AuctionInfo<phantom T> has key, store {
++    public struct AuctionInfo<phantom T> has key, store {
+@@ -87 +87 @@
+-    struct NovaNFT has key, store {
++    public struct NovaNFT has key, store {
+@@ -101 +101 @@
+-    struct UpgradedNFT has key, store { 
++    public struct UpgradedNFT has key, store { 
+@@ -118 +118 @@
+-    struct NovaNFTEvent has copy, drop {
++    public struct NovaNFTEvent has copy, drop {
+@@ -127 +127 @@
+-    struct SEALED_BID has drop {}
++    public struct SEALED_BID has drop {}
+@@ -163 +163 @@
+-        let display_1 = display::new_with_fields<NovaNFT>(
++        let mut display_1 = display::new_with_fields<NovaNFT>(
+@@ -166 +166 @@
+-        let display_2 = display::new_with_fields<UpgradedNFT>(
++        let mut display_2 = display::new_with_fields<UpgradedNFT>(
+@@ -261,2 +261,2 @@
+-    fun hash(bid_amount: u64, salt: vector<u8>): vector<u8> {
+-        let data = salt;
++    fun hash(mut bid_amount: u64, salt: vector<u8>): vector<u8> {
++        let mut data = salt;
+@@ -264,2 +264,2 @@
+-        let round_bytes: vector<u8> = vector[0, 0, 0, 0, 0, 0, 0, 0];
+-        let i = 7;
++        let mut round_bytes: vector<u8> = vector[0, 0, 0, 0, 0, 0, 0, 0];
++        let mut i = 7;
+@@ -328 +328 @@
+-        let test_vector: vector<u8> = vector[];
++        let mut test_vector: vector<u8> = vector[];
